@@ -7,3 +7,7 @@ interactions-files
 twisted
 quarry
 javascript
+tqdm
+Flask
+flask-cors
+python-dotenv

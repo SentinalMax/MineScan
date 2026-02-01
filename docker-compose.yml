@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  scanner:
+    build: .
+    environment:
+      MONGO_URL: "${MONGO_URL:-mongodb://mongo:27017/mc}"
+      DISCORD_WEBHOOK: "${DISCORD_WEBHOOK}"
+      SCANNER_CONTROL_PORT: "8081"
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    depends_on:
+      - mongo
+    networks:
+      - app_net
+    expose:
+      - "8081"
+    command: ["python", "scanner_control.py"]
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_net
+
+  api:
+    build: ./api
+    environment:
+      MONGO_URL: "${MONGO_URL:-mongodb://mongo:27017/mc}"
+      SCANNER_CONTROL_URL: "http://scanner:8081"
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    networks:
+      - app_net
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: "http://localhost:5000"
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    networks:
+      - app_net
+
+volumes:
+  mongo_data:
+
+networks:
+  app_net:

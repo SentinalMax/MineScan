@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: Scanner Data API
+  version: 0.1.0
+  description: Read-only API for discovered Minecraft server scan data.
+servers:
+  - url: http://localhost:5000
+paths:
+  /servers:
+    get:
+      summary: List discovered servers
+      parameters:
+        - name: q
+          in: query
+          description: Filter by host or name fields.
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max number of results to return.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Offset for pagination.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: sort
+          in: query
+          description: Field to sort by.
+          required: false
+          schema:
+            type: string
+            enum: [lastOnline, lastOnlinePlayers, lastOnlineVersion]
+            default: lastOnlinePlayers
+        - name: order
+          in: query
+          description: Sort direction.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Server list response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ServerSummary"
+  /servers/{host}:
+    get:
+      summary: Fetch server details
+      parameters:
+        - name: host
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Server detail response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerDetail"
+        "404":
+          description: Server not found
+components:
+  schemas:
+    Player:
+      type: object
+      properties:
+        name:
+          type: string
+        uuid:
+          type: string
+    ServerSummary:
+      type: object
+      properties:
+        host:
+          type: string
+        hostname:
+          type: string
+          nullable: true
+        lastOnline:
+          type: number
+        lastOnlinePlayers:
+          type: integer
+          nullable: true
+        lastOnlinePlayersMax:
+          type: integer
+          nullable: true
+        lastOnlineVersion:
+          type: string
+          nullable: true
+        lastOnlineDescription:
+          type: string
+          nullable: true
+        lastOnlinePing:
+          type: integer
+          nullable: true
+    ServerDetail:
+      type: object
+      properties:
+        host:
+          type: string
+        hostname:
+          type: string
+          nullable: true
+        lastOnline:
+          type: number
+        lastOnlinePlayers:
+          type: integer
+          nullable: true
+        lastOnlinePlayersMax:
+          type: integer
+          nullable: true
+        lastOnlinePlayersList:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+        lastOnlineVersion:
+          type: string
+          nullable: true
+        lastOnlineVersionProtocol:
+          type: string
+          nullable: true
+        lastOnlineDescription:
+          type: string
+          nullable: true
+        lastOnlinePing:
+          type: integer
+          nullable: true
+        cracked:
+          type: boolean
+          nullable: true
+        whitelisted:
+          type: boolean
+          nullable: true
+        favicon:
+          type: string
+          nullable: true
+        extra:
+          type: object
+          additionalProperties: true

@@ -49,8 +49,10 @@ class Logger:
         logging.basicConfig(
             level=level,
             format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
-            filename="log.log",
-            filemode="a",
+            handlers=[
+                logging.FileHandler("log.log", mode="a"),
+                logging.StreamHandler(norm),
+            ],
         )
 
         self.log = logging.getLogger("STDOUT")

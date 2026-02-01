@@ -154,20 +154,20 @@ class Finder:
                                     )
                                 else:
                                     joinability = "CRACKED"
-                            except JSONDecodeError:
+                            except JSONDecodeError as exc:
                                 self.logger.print(
-                                    "Error getting player list, bad json response"
+                                    f"Error getting player list, bad json response: {exc}"
                                 )
                                 self.logger.error(
-                                    f"Error getting player list, bad json response: {jsonResp}"
+                                    f"Error getting player list, bad json response: {jsonResp} ({exc})"
                                 )
                                 continue
-                            except KeyError:
+                            except KeyError as exc:
                                 self.logger.print(
-                                    "Error getting player list, bad json response"
+                                    f"Error getting player list, bad json response: {exc}"
                                 )
                                 self.logger.error(
-                                    f"Error getting player list, bad json response: {jsonResp}"
+                                    f"Error getting player list, bad json response: {jsonResp} ({exc})"
                                 )
                                 continue
                         else:
@@ -198,9 +198,12 @@ class Finder:
                                 "uuid": uuid,
                             }
                         )
-            except Exception:
-                self.logger.print("Error getting player list",
-                                  traceback.format_exc())
+            except Exception as exc:
+                self.logger.print(
+                    "Error getting player list: {} --\\/-- {}".format(
+                        exc, host
+                    )
+                )
                 self.logger.error(traceback.format_exc())
 
             # remove duplicates from player list
@@ -212,15 +215,21 @@ class Finder:
             # get the description
             rawMOTD = status.raw["description"]
 
-            if "extra" in rawMOTD and "text" in rawMOTD:
-                motd = rawMOTD["text"]
-                for extra in rawMOTD["extra"]:
-                    motd += extra["text"]
-            elif "text" in rawMOTD:
-                motd = rawMOTD["text"]
-                motd = re.sub(r"§.", "", str(motd))
+            if isinstance(rawMOTD, dict):
+                motd = str(rawMOTD.get("text", ""))
+                extras = rawMOTD.get("extra", [])
+                for extra in extras:
+                    if isinstance(extra, dict):
+                        motd += str(extra.get("text", ""))
+                    else:
+                        motd += str(extra)
             else:
-                motd = re.sub(r"§.", "", str(rawMOTD))
+                motd = str(rawMOTD)
+            motd = re.sub(r"§.", "", motd)
+
+            favicon = getattr(status, "favicon", None)
+            if favicon is None:
+                self.logger.debug("Favicon not present in status response")
 
             data = {
                 "host": ip,
@@ -239,7 +248,7 @@ class Finder:
                 ),
                 "cracked": cracked,
                 "whitelisted": joinability == "WHITELISTED",
-                "favicon": status.favicon,
+                "favicon": favicon,
             }
 
             if not self.col.find_one({"host": ip}) and not self.col.find_one(
@@ -308,8 +317,8 @@ class Finder:
                 )
 
             return data
-        except TimeoutError:
-            self.logger.debug("Timeout Error")
+        except TimeoutError as exc:
+            self.logger.debug(f"Timeout Error: {exc}")
             return None
         except Exception:
             self.logger.error(traceback.format_exc())
@@ -340,10 +349,11 @@ class Finder:
             except StopIteration:
                 self.logger.error("Index out of range")
                 return None
-        except:
+        except Exception as exc:
             self.logger.error(traceback.format_exc())
             self.logger.error(
-                "Error getting document at index: {}".format(pipeline))
+                "Error getting document at index: {} ({})".format(pipeline, exc)
+            )
             return None
 
     def genEmbed(
@@ -587,7 +597,8 @@ class Finder:
                     _file = None
             else:
                 _file = None
-        except Exception:
+        except Exception as exc:
+            self.logger.error(f"Error creating embed: {exc}")
             self.logger.error(traceback.format_exc())
             _file = None
 
@@ -681,11 +692,11 @@ class Finder:
 
                 self.logger.debug("Reason: " + reason)
                 return ServerType(ip, version, "UNKNOW")
-        except TimeoutError:
-            self.logger.error("Server timed out")
+        except TimeoutError as exc:
+            self.logger.error(f"Server timed out: {exc}")
             return ServerType(ip, version, "OFFLINE")
-        except OSError:
-            self.logger.error("Server did not respond")
+        except OSError as exc:
+            self.logger.error(f"Server did not respond: {exc}")
             return ServerType(ip, version, "UNKNOW")
         except Exception:
             self.logger.error(traceback.format_exc())
