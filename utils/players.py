@@ -64,7 +64,12 @@ class Players:
         tStart = time.time()
         try:
             chat2.main(args)
-        except Exception:
+        except Exception as exc:
+            self.logger.error(
+                "Error getting cracked player list for {}:{}: {}".format(
+                    host, port, exc
+                )
+            )
             self.logger.error(traceback.format_exc())
             return [] if self.crackCheckAPI(host, port) else None
 
@@ -152,11 +157,11 @@ class Players:
                     {"name": self.text.cFilter(p.name, True), "uuid": p.id}
                     for p in status.players.sample
                 ]
-        except TimeoutError:
-            self.logger.error("Timeout error")
+        except TimeoutError as exc:
+            self.logger.error(f"Timeout error: {exc}")
             normal = []
-        except ConnectionRefusedError:
-            self.logger.error("Connection refused")
+        except ConnectionRefusedError as exc:
+            self.logger.error(f"Connection refused: {exc}")
             normal = []
         except Exception:
             self.logger.error(traceback.format_exc())

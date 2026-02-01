@@ -1,0 +1,16 @@
+2026-01-28 23:36:36,371:INFO:root:
+------------------
+Installing python packages...
+2026-01-28 23:36:38,083:INFO:root:
+------------------
+Checking for masscan (required for scanning)...
+2026-01-28 23:36:38,083:INFO:root:Masscan not supported on Windows, please install manually.
+2026-01-28 23:36:38,083:INFO:root:
+------------------
+Creating privVars.py...
+2026-01-28 23:36:38,098:INFO:root:
+------------------
+Setup complete!
+2026-01-28 23:36:38,098:INFO:root:Please edit privVars.py with your variables and run mongoBot.pyw for the discord bot and scanCore.py for the scanner.
+2026-01-28 23:36:38,098:INFO:root:Docs can be found here:
+https://github.com/Pilot1782/bad_copenheimer/wiki/Installation-(New-Bot)

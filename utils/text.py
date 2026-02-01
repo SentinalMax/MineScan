@@ -169,8 +169,8 @@ class Text:
                 return ip
 
             return host[0]
-        except socket.herror:
-            self.logger.info("IP address not found")
+        except socket.herror as exc:
+            self.logger.info(f"IP address not found: {exc}")
             return ip
 
     def resolveIP(self, host: str) -> str:
@@ -185,8 +185,8 @@ class Text:
         try:
             ip = socket.gethostbyname(host)
             return ip
-        except socket.gaierror:
-            self.logger.info("Hostname not found")
+        except socket.gaierror as exc:
+            self.logger.info(f"Hostname not found: {exc}")
             return host
         except Exception:
             self.logger.error(traceback.format_exc())
