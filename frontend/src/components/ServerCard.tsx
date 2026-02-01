@@ -44,8 +44,15 @@ const ServerCard = ({ server }: ServerCardProps) => {
     server.lastOnline > 0
       ? new Date(server.lastOnline * 1000).toLocaleString()
       : 'Unknown'
-  const showHostname =
-    server.hostname && server.hostname.trim() !== '' && server.hostname !== server.host
+  const onlineCutoffSeconds = 10 * 60
+  const isOnline =
+    server.isOnline ??
+    (server.lastOnline > 0 &&
+      Date.now() - server.lastOnline * 1000 <= onlineCutoffSeconds * 1000)
+  const serverName =
+    server.hostname && server.hostname.trim() !== ''
+      ? server.hostname
+      : 'Unknown name'
 
   const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
@@ -68,18 +75,30 @@ const ServerCard = ({ server }: ServerCardProps) => {
         >
           <Box>
             <Stack direction="row" spacing={1} alignItems="center">
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  bgcolor: isOnline ? 'success.main' : 'error.main',
+                }}
+              />
               <Typography variant="subtitle1">{server.host}</Typography>
               <Tooltip title="Copy IP">
-                <IconButton size="small" onClick={handleCopy}>
+                <IconButton
+                  component="span"
+                  size="small"
+                  onClick={handleCopy}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  aria-label="Copy IP"
+                >
                   <ContentCopyIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
             </Stack>
-            {showHostname ? (
-              <Typography variant="body2" color="text.secondary">
-                {server.hostname}
-              </Typography>
-            ) : null}
+            <Typography variant="body2" color="text.secondary">
+              {serverName}
+            </Typography>
           </Box>
           <Stack direction="row" spacing={1} flexWrap="wrap">
             <Chip
@@ -95,6 +114,15 @@ const ServerCard = ({ server }: ServerCardProps) => {
               variant="outlined"
               size="small"
             />
+            {server.serverType ? (
+              <Chip label={server.serverType} variant="outlined" size="small" />
+            ) : null}
+            {server.whitelisted ? (
+              <Chip label="Whitelisted" variant="outlined" size="small" />
+            ) : null}
+            {server.cracked ? (
+              <Chip label="Cracked" variant="outlined" size="small" />
+            ) : null}
           </Stack>
         </Stack>
       </AccordionSummary>

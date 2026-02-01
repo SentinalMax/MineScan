@@ -17,6 +17,9 @@ SUMMARY_FIELDS = [
     "lastOnlineVersion",
     "lastOnlineDescription",
     "lastOnlinePing",
+    "serverType",
+    "whitelisted",
+    "cracked",
 ]
 
 DETAIL_FIELDS = SUMMARY_FIELDS + [

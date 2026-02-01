@@ -1,9 +1,9 @@
-import { Box, Button, Paper, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Paper, Stack, Typography } from '@mui/material'
 
 type ServerListStateProps = {
-  variant: 'empty' | 'error'
+  variant: 'empty' | 'error' | 'loading'
   title: string
-  description: string
+  description?: string
   actionLabel?: string
   onAction?: () => void
 }
@@ -18,8 +18,11 @@ const ServerListState = ({
   <Paper variant="outlined">
     <Box px={3} py={4}>
       <Stack spacing={2} alignItems="center" textAlign="center">
+        {variant === 'loading' ? <CircularProgress size={24} /> : null}
         <Typography variant="h6">{title}</Typography>
-        <Typography color="text.secondary">{description}</Typography>
+        {description ? (
+          <Typography color="text.secondary">{description}</Typography>
+        ) : null}
         {variant === 'error' && actionLabel && onAction ? (
           <Button variant="contained" onClick={onAction}>
             {actionLabel}

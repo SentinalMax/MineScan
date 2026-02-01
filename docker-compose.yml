@@ -5,6 +5,7 @@ services:
     environment:
       MONGO_URL: "${MONGO_URL:-mongodb://mongo:27017/mc}"
       DISCORD_WEBHOOK: "${DISCORD_WEBHOOK}"
+      SCANNER_CONTROL_PORT: "8081"
     cap_add:
       - NET_RAW
       - NET_ADMIN
@@ -12,6 +13,9 @@ services:
       - mongo
     networks:
       - app_net
+    expose:
+      - "8081"
+    command: ["python", "scanner_control.py"]
 
   mongo:
     image: mongo:7
@@ -27,6 +31,7 @@ services:
     build: ./api
     environment:
       MONGO_URL: "${MONGO_URL:-mongodb://mongo:27017/mc}"
+      SCANNER_CONTROL_URL: "http://scanner:8081"
     depends_on:
       - mongo
     ports:
