@@ -1,76 +1,73 @@
-# Bad Copenheimer
+# MineScan
 
-## [NEW REPO](https://github.com/MCServerScout/Discord-Bot)
+[![License](https://img.shields.io/github/license/Pilot1782/bad_copenheimer)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](requirements.txt)
+[![Node](https://img.shields.io/badge/node-18%2B-green)](frontend/package.json)
 
-A Python impelentation of a discord bot that acts as a server scanner.
+MineScan is a full-stack Minecraft server scanner and explorer. It combines a scanner control service, a Mongo-backed API, and a modern web UI to discover, inspect, and manage scan results.
 
-This is a discord bot that will scan ip adresses to see if they are minecraft servers and will post the results in your channel.
+This repository is a fork created to revive and continue the previous **bad_copenheimer** project by **Pilot1782**.
 
-[Discord Server](https://discord.gg/kw3EYRwUkt) if you want to test or play around with a premade bot.
+## Highlights
 
-----
+- End-to-end scan lifecycle control (start, stop, monitor progress).
+- Server discovery UI with search, sorting, and filtering.
+- Detailed server metadata and health indicators.
+- Containerized backend services for consistent local setup.
+- Polished dark-mode UI built with Material UI.
 
-## Beta Release
+## Additional Features
 
-The new bot is now public, you can check it out in the [dev-builds](https://github.com/Pilot1782/bad_copenheimer/tree/dev-builds) branch and by following the README.
+- CSV subnet uploads for batch scans.
+- Real-time scan telemetry with progress and ETA.
+- Server detail panels with extra metadata.
+- Backend API for list + detail endpoints.
+- Extensible data model for additional metadata fields.
 
-## Installation
+## Architecture
 
-[Installation Page](https://github.com/Pilot1782/bad_copenheimer/wiki/Installation-(New-Bot))
+```
+frontend/        React UI (Vite + MUI)
+api/             Flask API (Mongo-backed)
+scanner_control.py  Scanner control service
+scanCore.py      Scanner engine
+```
 
-[Wiki](https://www.github.com/Pilot1782/bad_copenheimer/wiki)
+## Quick Start
 
-[Troubleshooting](https://www.github.com/Pilot1782/bad_copenheimer/wiki/troubleshooting)
+### Docker (recommended)
 
-----
+```
+docker-compose up --build
+```
 
-## Usage
+### Local Development
 
-### Experimental
+```
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+python api/app.py
+```
 
-**The New Bot is Done!**
+```
+cd frontend
+npm install
+npm run dev
+```
 
-You can now use the new bot, it is still in beta, but it is much more stable and has more features. You can find it [here](https://github.com/Pilot1782/bad_copenheimer/blob/dev-builds/mongoBot.pyw).
+## Screenshots
 
-### Requirements
+Add screenshots of the Servers and Scans screens here to showcase the UI.
 
-* Python 3.6 or higher
-* Linux/Docker (for the scanner, the discord bot will run on windows)
-* Masscan (for the scanner)
-* requirements.txt (needs to be run with pip3)
-* node.js 16 or higher
+## Documentation
 
-### Normal
+- Scanner CLI: [SCANNER_CLI.md](SCANNER_CLI.md)
 
-`/help`
-This shows all of the commands you can use and their usage. Then to create your server list, run:
+## Contributing
 
-`/find`
-This will look through your database to find servers that match the provided paramaters. In the new build, there are two more buttons that can be used to either show the player names and uuids of players found on the server or to pick another random server from the list, after pressing it, wait for the message to update.
+Contributions are welcome. Please open an issue or PR with a clear description of the change and the motivation.
 
-![showcase](https://raw.githubusercontent.com/Pilot1782/bad_copenheimer/doc-resources/Screenshot_20230111_083824.png)
+## License
 
-If the server has a whitelist the dot will be orange if it is online.
-
-![showcase](https://raw.githubusercontent.com/Pilot1782/bad_copenheimer/doc-resources/Screenshot_20230222_034715.png)
-
-`/stats`
-This will show you the stats of the databse.
-
-![showcase](https://raw.githubusercontent.com/Pilot1782/bad_copenheimer/doc-resources/Screenshot_20221220_124016.png)
-
-#### Important
-
-In order for /status to work properly the server should have enable-query=true in the server.properties file. This allows the server to brodcast who is currently logged onto the server.
-
-----
-
-## Help
-
-Please check the wiki before posting an issue and read through the [troubleshooting](https://github.com/Pilot1782/bad_copenheimer/wiki/troubleshooting) first.
-
-----
-
-## Todo
-
-Moved to [Project](https://github.com/users/Pilot1782/projects/1)
+This project is licensed under the terms of the [LICENSE](LICENSE) file.
