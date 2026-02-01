@@ -10,6 +10,10 @@ export type ServerSummary = {
   lastOnlineVersion: string | null
   lastOnlineDescription: string | null
   lastOnlinePing: number | null
+  serverType?: string | null
+  whitelisted?: boolean | null
+  cracked?: boolean | null
+  isOnline?: boolean
 }
 
 type ServerListResponse = {
@@ -24,6 +28,20 @@ export type ServersState = {
   refresh: () => void
 }
 
+export type ServerListParams = {
+  query: string
+  sort: string
+  order: 'asc' | 'desc'
+  minPlayers?: number
+  maxPlayers?: number
+  lastOnlineAfter?: number
+  lastOnlineBefore?: number
+  version?: string
+  serverType?: string
+  whitelisted?: boolean
+  cracked?: boolean
+}
+
 const getErrorMessage = (error: Error) => {
   if (error instanceof ApiError && error.status === 404) {
     return 'Servers endpoint was not found.'
@@ -31,7 +49,19 @@ const getErrorMessage = (error: Error) => {
   return error.message || 'Unable to load servers.'
 }
 
-export const useServers = (query: string): ServersState => {
+export const useServers = ({
+  query,
+  sort,
+  order,
+  minPlayers,
+  maxPlayers,
+  lastOnlineAfter,
+  lastOnlineBefore,
+  version,
+  serverType,
+  whitelisted,
+  cracked,
+}: ServerListParams): ServersState => {
   const [data, setData] = useState<ServerListResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -51,7 +81,19 @@ export const useServers = (query: string): ServersState => {
 
       try {
         const response = await fetchJson<ServerListResponse>('/servers', {
-          params: { q: query.trim() },
+          params: {
+            q: query.trim(),
+            sort,
+            order,
+            minPlayers,
+            maxPlayers,
+            lastOnlineAfter,
+            lastOnlineBefore,
+            version: version?.trim(),
+            serverType: serverType?.trim(),
+            whitelisted,
+            cracked,
+          },
           signal: controller.signal,
         })
 
@@ -82,7 +124,20 @@ export const useServers = (query: string): ServersState => {
       active = false
       controller.abort()
     }
-  }, [query, requestId])
+  }, [
+    query,
+    sort,
+    order,
+    minPlayers,
+    maxPlayers,
+    lastOnlineAfter,
+    lastOnlineBefore,
+    version,
+    serverType,
+    whitelisted,
+    cracked,
+    requestId,
+  ])
 
   return { data, loading, error, refresh }
 }

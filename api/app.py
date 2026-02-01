@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from api.routes.health import health_bp
+from api.routes.scans import scans_bp
 from api.routes.servers import servers_bp
 
 
@@ -13,6 +14,7 @@ def create_app() -> Flask:
 
     app.register_blueprint(health_bp)
     app.register_blueprint(servers_bp, url_prefix="/servers")
+    app.register_blueprint(scans_bp, url_prefix="/scans")
 
     _register_error_handlers(app)
 

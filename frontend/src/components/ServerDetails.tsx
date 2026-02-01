@@ -55,6 +55,14 @@ const ServerDetails = ({ detail, loading, error }: ServerDetailsProps) => {
         <Paper variant="outlined">
           <Box px={2} py={1.5}>
             <Stack spacing={1}>
+              {detail.favicon ? (
+                <Box
+                  component="img"
+                  src={detail.favicon}
+                  alt={`${detail.host} favicon`}
+                  sx={{ width: 32, height: 32 }}
+                />
+              ) : null}
               <Typography variant="body2">
                 Hostname: {formatValue(detail.hostname)}
               </Typography>

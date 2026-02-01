@@ -1,5 +1,7 @@
-import { Box, Container, Typography } from '@mui/material'
+import { Container, Typography } from '@mui/material'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import AppLayout from '../components/AppLayout'
+import ScansPage from '../pages/ScansPage'
 import ServersList from '../pages/ServersList'
 
 const ServerDetailPlaceholder = () => (
@@ -15,13 +17,14 @@ const ServerDetailPlaceholder = () => (
 
 const AppRoutes = () => (
   <BrowserRouter>
-    <Box minHeight="100vh" bgcolor="background.default">
+    <AppLayout>
       <Routes>
         <Route path="/" element={<ServersList />} />
+        <Route path="/scans" element={<ScansPage />} />
         <Route path="/servers/:host" element={<ServerDetailPlaceholder />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Box>
+    </AppLayout>
   </BrowserRouter>
 )
 
