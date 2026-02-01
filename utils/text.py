@@ -87,7 +87,7 @@ class Text:
         # 35: Pink   <- §d
         # 36: Cyan   <- §b
         # 37: White  <- §f
-        colorChar = ""  # \u001b
+        colorChar = "\u001b"
         ansi = {
             "§0": colorChar + "[30m",
             "§1": colorChar + "[34m",

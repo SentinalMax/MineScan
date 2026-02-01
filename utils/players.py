@@ -1,5 +1,7 @@
+import io
 import time
 import traceback
+import uuid
 from typing import Dict, List, Optional, Union
 
 import interactions
@@ -109,10 +111,9 @@ class Players:
         """
         url = "https://minotar.net/avatar/" + name
         r = requests.get(url)
-        with open("playerhead.png", "wb") as f:
-            f.write(r.content)
+        head_data = io.BytesIO(r.content)
         self.logger.debug("Player head downloaded")
-        return interactions.File(filename="playerhead.png")
+        return interactions.File(head_data, file_name="playerhead.png")
 
     def playerList(self, host: str, port: int = 25565, usrname: str = "") -> List[Dict]:
         """Return a list of players on a Minecraft server

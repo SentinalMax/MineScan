@@ -35,11 +35,13 @@ except ImportError:
 
 if MONGO_URL == "mongodb+srv://...":
     print("Please add your mongo url to privVars.py")
-    input()
+    if sys.stdin.isatty():
+        input()
     sys.exit()
 if TOKEN == "...":
     print("Please add your bot token to privVars.py")
-    input()
+    if sys.stdin.isatty():
+        input()
     sys.exit()
 
 # Setup

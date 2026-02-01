@@ -137,6 +137,8 @@ def run(args):
 
 
 def main(argv):
+    global playerArr
+    playerArr = []
     parser = ProfileCLI.make_parser()
     parser.add_argument("host")
     parser.add_argument("-p", "--port", default=25565, type=int)

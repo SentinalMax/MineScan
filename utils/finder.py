@@ -1,8 +1,11 @@
 import base64
+import io
+import os
 import re
 import threading
 import time
 import traceback
+import uuid
 from json import JSONDecodeError
 from typing import Dict, List, Optional
 
@@ -302,7 +305,7 @@ class Finder:
                                 else:
                                     data["lastOnlinePlayersList"].append(i)
                         except Exception:
-                            self.print(
+                            self.logger.print(
                                 traceback.format_exc(),
                                 " --\\/-- ",
                                 host,
@@ -532,16 +535,8 @@ class Finder:
                     name="Last Online",
                     value=(
                         time.strftime(
-                            "%Y/%m/%d %H:%M:%S", time.localtime(
-                                info["lastOnline"])
-                        )
-                        if not online
-                        else time.strftime(  # give the last online time if the server is offline
-                            "%Y/%m/%d %H:%M:%S", time.localtime(time.time())
-                        )
-                        if not online
-                        else time.strftime(  # give the last online time if the server is offline
-                            "%Y/%m/%d %H:%M:%S", time.localtime(time.time())
+                            "%Y/%m/%d %H:%M:%S",
+                            time.localtime(info["lastOnline"] if not online else time.time())
                         )
                     )
                     if info["host"] != "Server not found."
@@ -586,10 +581,9 @@ class Finder:
                 )
                 if fav is not None:
                     bits = fav.split(",")[1]
-
-                    with open("server-icon.png", "wb") as f:
-                        f.write(base64.b64decode(bits))
-                    _file = interactions.File(filename="server-icon.png")
+                    icon_data = base64.b64decode(bits)
+                    icon_file = io.BytesIO(icon_data)
+                    _file = interactions.File(icon_file, file_name="server-icon.png")
                     embed.set_thumbnail(url="attachment://server-icon.png")
 
                     self.logger.print("Favicon added")
@@ -679,7 +673,7 @@ class Finder:
             elif id == 0:
                 self.logger.debug("Failed to login")
                 self.logger.debug(response.read_utf())
-                return ServerType(ip, version, "UNKNOW")
+                return ServerType(ip, version, "UNKNOWN")
             elif id == 1:
                 self.logger.debug("Encryption requested")
                 return ServerType(ip, version, "PREMIUM")
@@ -691,13 +685,13 @@ class Finder:
                     reason = "Unknown"
 
                 self.logger.debug("Reason: " + reason)
-                return ServerType(ip, version, "UNKNOW")
+                return ServerType(ip, version, "UNKNOWN")
         except TimeoutError as exc:
             self.logger.error(f"Server timed out: {exc}")
             return ServerType(ip, version, "OFFLINE")
         except OSError as exc:
             self.logger.error(f"Server did not respond: {exc}")
-            return ServerType(ip, version, "UNKNOW")
+            return ServerType(ip, version, "UNKNOWN")
         except Exception:
             self.logger.error(traceback.format_exc())
             return ServerType(ip, version, "OFFLINE")

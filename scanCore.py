@@ -33,21 +33,23 @@ masscan_search_path = (
     "/sw/bin/masscan",
     "/opt/local/bin/masscan",
 )
+MONGO_URL = "mongodb+srv://..."
 DISCORD_WEBHOOK = "discord.api.com/..."
 try:
     from privVars import *
 except ImportError:
-    MONGO_URL = "mongodb+srv://..."
-    DSICORD_WEBHOOK = "discord.api.com/..."
+    pass
 
 
 if MONGO_URL == "mongodb+srv://...":
     print("Please add your mongo url to privVars.py")
-    input()
+    if sys.stdin.isatty():
+        input()
     sys.exit()
 if useWebHook and DISCORD_WEBHOOK == "discord.api.com/...":
     print("Please add your discord webhook to privVars.py")
-    input()
+    if sys.stdin.isatty():
+        input()
     sys.exit()
 
 # Setup
@@ -273,7 +275,7 @@ def disLog(text, end="\r"):
         try:
             import requests
 
-            url = DSICORD_WEBHOOK
+            url = DISCORD_WEBHOOK
             data = {"content": text + end}
             requests.post(url, data=data)
         except Exception:

@@ -18,6 +18,9 @@ _status_cache: dict[str, tuple[bool, float]] = {}
 
 
 def _check_online(host: str) -> bool:
+    global _status_cache
+    if len(_status_cache) > 1000:
+        _status_cache.clear()
     now = time.time()
     cached = _status_cache.get(host)
     if cached and now - cached[1] < CACHE_TTL_SECONDS:

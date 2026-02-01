@@ -7,7 +7,7 @@ def test_list_servers_default_sort(monkeypatch):
     client = app.test_client()
     captured = {}
 
-    def fake_list(query, limit, offset, sort_field, sort_order):
+    def fake_list(query, limit, offset, sort_field, sort_order, **kwargs):
         captured["query"] = query
         captured["limit"] = limit
         captured["offset"] = offset
@@ -28,7 +28,7 @@ def test_list_servers_query_params(monkeypatch):
     client = app.test_client()
     captured = {}
 
-    def fake_list(query, limit, offset, sort_field, sort_order):
+    def fake_list(query, limit, offset, sort_field, sort_order, **kwargs):
         captured["query"] = query
         captured["limit"] = limit
         captured["offset"] = offset
