@@ -1,6 +1,10 @@
 from flask import Blueprint, jsonify, request
 
-from api.services.server_queries import get_server_detail, get_server_list
+from api.services.server_queries import (
+    get_server_detail,
+    get_server_list,
+    get_servers_online_status,
+)
 
 servers_bp = Blueprint("servers", __name__)
 
@@ -13,6 +17,7 @@ ALLOWED_SORT_FIELDS = {
     "cracked",
 }
 ALLOWED_SORT_ORDERS = {"asc", "desc"}
+MAX_STATUS_HOSTS = 200
 
 
 def _parse_int(value: str | None, default: int) -> int:
@@ -96,6 +101,21 @@ def list_servers():
         cracked=cracked,
     )
     return jsonify(payload)
+
+
+@servers_bp.post("/status")
+def get_servers_status():
+    data = request.get_json(silent=True) or {}
+    hosts = data.get("hosts", [])
+    if not isinstance(hosts, list):
+        return jsonify({"error": "Hosts must be a list."}), 400
+    normalized_hosts = [
+        host.strip() for host in hosts if isinstance(host, str) and host.strip()
+    ]
+    if len(normalized_hosts) > MAX_STATUS_HOSTS:
+        return jsonify({"error": "Too many hosts requested."}), 400
+    statuses = get_servers_online_status(normalized_hosts)
+    return jsonify({"statuses": statuses})
 
 
 @servers_bp.get("/<host>")

@@ -5,6 +5,7 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
+  Pagination,
   Select,
   Stack,
   TextField,
@@ -13,7 +14,7 @@ import {
   Typography,
 } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ServerCard from '../components/ServerCard'
 import ServerListState from '../components/ServerListState'
 import { useServers } from '../services/useServers'
@@ -26,6 +27,8 @@ const SORT_OPTIONS = [
   { value: 'whitelisted', label: 'Whitelisted' },
   { value: 'cracked', label: 'Cracked' },
 ]
+
+const PAGE_SIZE_OPTIONS = [25, 50, 100]
 
 const toUnixSeconds = (value: string) => {
   if (!value) {
@@ -59,6 +62,10 @@ const ServersList = () => {
   const [serverType, setServerType] = useState('')
   const [whitelisted, setWhitelisted] = useState<'any' | 'true' | 'false'>('any')
   const [cracked, setCracked] = useState<'any' | 'true' | 'false'>('any')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0])
+
+  const offset = (page - 1) * pageSize
 
   const { data, error, loading, refresh } = useServers({
     query,
@@ -72,11 +79,37 @@ const ServersList = () => {
     serverType,
     whitelisted: whitelisted === 'any' ? undefined : whitelisted === 'true',
     cracked: cracked === 'any' ? undefined : cracked === 'true',
+    limit: pageSize,
+    offset,
   })
 
   const items = data?.items ?? []
   const total = data?.total ?? 0
   const trimmedQuery = query.trim()
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+  useEffect(() => {
+    setPage(1)
+  }, [
+    query,
+    sortField,
+    sortOrder,
+    minPlayers,
+    maxPlayers,
+    lastOnlineAfter,
+    lastOnlineBefore,
+    version,
+    serverType,
+    whitelisted,
+    cracked,
+    pageSize,
+  ])
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages)
+    }
+  }, [page, totalPages])
 
   const activeFilterCount = useMemo(() => {
     const filters = [
@@ -282,6 +315,37 @@ const ServersList = () => {
         <Typography variant="subtitle2" color="text.secondary">
           {countLabel}
         </Typography>
+
+        {!loading && total > 0 ? (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            alignItems={{ xs: 'flex-start', sm: 'center' }}
+            justifyContent="space-between"
+          >
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+              color="primary"
+            />
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel id="page-size-label">Page size</InputLabel>
+              <Select
+                labelId="page-size-label"
+                label="Page size"
+                value={pageSize}
+                onChange={(event) => setPageSize(Number(event.target.value))}
+              >
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <MenuItem key={size} value={size}>
+                    {size} / page
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+        ) : null}
 
         {showLoadingState ? (
           <ServerListState

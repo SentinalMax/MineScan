@@ -96,14 +96,16 @@ def get_server_list(
     )
     total = collection.count_documents(filter_query)
     items: List[dict] = [serialize_server_summary(doc) for doc in cursor]
-
-    with ThreadPoolExecutor(max_workers=MAX_STATUS_WORKERS) as executor:
-        futures = {
-            executor.submit(_check_online, item.get("host", "")): item
-            for item in items
-            if item.get("host")
-        }
-        for future, item in futures.items():
-            item["isOnline"] = future.result()
-
     return {"total": total, "items": items}
+
+
+def get_servers_online_status(hosts: list[str]) -> dict[str, bool]:
+    if not hosts:
+        return {}
+    unique_hosts = [host for host in dict.fromkeys(hosts) if host]
+    results: dict[str, bool] = {}
+    with ThreadPoolExecutor(max_workers=MAX_STATUS_WORKERS) as executor:
+        futures = {executor.submit(_check_online, host): host for host in unique_hosts}
+        for future, host in futures.items():
+            results[host] = future.result()
+    return results

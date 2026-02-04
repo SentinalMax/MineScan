@@ -21,6 +21,10 @@ type ServerListResponse = {
   items: ServerSummary[]
 }
 
+type ServerStatusResponse = {
+  statuses: Record<string, boolean>
+}
+
 export type ServersState = {
   data: ServerListResponse | null
   loading: boolean
@@ -40,6 +44,8 @@ export type ServerListParams = {
   serverType?: string
   whitelisted?: boolean
   cracked?: boolean
+  limit?: number
+  offset?: number
 }
 
 const getErrorMessage = (error: Error) => {
@@ -61,6 +67,8 @@ export const useServers = ({
   serverType,
   whitelisted,
   cracked,
+  limit,
+  offset,
 }: ServerListParams): ServersState => {
   const [data, setData] = useState<ServerListResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -93,12 +101,51 @@ export const useServers = ({
             serverType: serverType?.trim(),
             whitelisted,
             cracked,
+            limit,
+            offset,
           },
           signal: controller.signal,
         })
 
         if (active) {
           setData(response)
+        }
+
+        const hosts = response.items.map((item) => item.host).filter(Boolean)
+        if (hosts.length > 0) {
+          void (async () => {
+            try {
+              const statusResponse = await fetchJson<ServerStatusResponse>(
+                '/servers/status',
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ hosts }),
+                  signal: controller.signal,
+                },
+              )
+              if (!active) {
+                return
+              }
+              setData((prev) => {
+                if (!prev) {
+                  return prev
+                }
+                const updatedItems = prev.items.map((item) => ({
+                  ...item,
+                  isOnline: statusResponse.statuses[item.host],
+                }))
+                return { ...prev, items: updatedItems }
+              })
+            } catch (statusError) {
+              if (
+                statusError instanceof DOMException &&
+                statusError.name === 'AbortError'
+              ) {
+                return
+              }
+            }
+          })()
         }
       } catch (err) {
         if (!active) {
@@ -136,6 +183,8 @@ export const useServers = ({
     serverType,
     whitelisted,
     cracked,
+    limit,
+    offset,
     requestId,
   ])
 
